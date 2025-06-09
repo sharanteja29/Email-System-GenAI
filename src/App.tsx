@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Send, Mail, MessageCircle, Search, Loader2, CheckCircle, AlertCircle, Brain, Bot, Users, Shield, BarChart3, Settings, Plug } from 'lucide-react';
+import { X } from 'lucide-react'; 
 
 type Endpoint = 'home' | 'router' | 'query' | 'customer_care_team';
 const AZURE_BASE_URL = "https://emailagentai-dgdgcyd2h4fmhcc3.centralus-01.azurewebsites.net";
@@ -86,6 +87,53 @@ function App() {
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+  // Place this handler inside your App component
+const handleEndpointChange = (endpoint: Endpoint) => {
+  setSelectedEndpoint(endpoint);
+  setFormData({
+    sender: '',
+    subject: '',
+    body: '',
+    user_query: ''
+  });
+  setResponse(null);
+  setError(null);
+};
+
+{/* Endpoint Selection */}
+<div className="flex flex-col md:flex-row gap-6 mb-8">
+  {endpoints.map((endpoint) => {
+    const Icon = endpoint.icon;
+    const isSelected = selectedEndpoint === endpoint.id;
+
+    return (
+      <button
+        key={endpoint.id}
+        onClick={() => handleEndpointChange(endpoint.id)}
+        className={`flex-1 p-6 rounded-lg border-2 transition-all duration-200 text-left transform hover:scale-105 ${isSelected
+            ? 'shadow-lg scale-105'
+            : 'border-gray-200 bg-white hover:shadow-md'
+          }`}
+        style={{
+          backgroundColor: isSelected ? endpoint.bgColor : 'white',
+          borderColor: isSelected ? endpoint.borderColor : '#e5e7eb',
+          minWidth: 0 // allow shrinking on small screens
+        }}
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div
+            className="p-3 rounded-lg text-white"
+            style={{ background: endpoint.gradient }}
+          >
+            <Icon className="h-6 w-6" />
+          </div>
+          <h3 className="font-bold text-gray-900 text-lg">{endpoint.label}</h3>
+        </div>
+        <p className="text-sm text-gray-600 leading-relaxed">{endpoint.description}</p>
+      </button>
+    );
+  })}
+</div>
   // ...existing code...
   const DEMO_RESPONSES: Record<Endpoint, ApiResponse> = {
     home: {
@@ -198,10 +246,10 @@ Customer Support Team`,
 
 
   const renderFormFields = () => {
-    if (selectedEndpoint === 'query' || selectedEndpoint === 'customer_care_team') {
+  if (selectedEndpoint === 'query' || selectedEndpoint === 'customer_care_team') {
     return (
       <div className="space-y-6">
-        <div>
+        <div className="relative">
           <label htmlFor="user_query" className="block text-sm font-semibold text-gray-700 mb-3">
             Your Query
           </label>
@@ -210,10 +258,21 @@ Customer Support Team`,
             value={formData.user_query}
             onChange={(e) => handleInputChange('user_query', e.target.value)}
             placeholder="Ask your question here..."
-            className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none text-gray-700 bg-white shadow-sm"
+            className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none text-gray-700 bg-white shadow-sm pr-10"
             rows={4}
             required
           />
+          {formData.user_query && (
+            <button
+              type="button"
+              onClick={() => handleInputChange('user_query', '')}
+              className="absolute top-10 right-3 text-gray-400 hover:text-red-500"
+              tabIndex={-1}
+              aria-label="Clear"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
     );
@@ -285,10 +344,6 @@ Customer Support Team`,
           <span>AI Output</span>
         </div>
         <div className="p-6 bg-white">
-          <h3 className="text-lg font-bold text-green-600 mb-4 flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-green-400"></span>
-            Output
-          </h3>
           <div className="mb-2">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-lg font-bold text-green-700">AI Generated Response</span>
@@ -317,10 +372,6 @@ Customer Support Team`,
           <span>AI Output</span>
         </div>
         <div className="p-6 bg-white">
-          <h3 className="text-lg font-bold text-green-600 mb-4 flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-green-400"></span>
-            Output
-          </h3>
           <div className="mb-2 space-y-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
@@ -368,25 +419,17 @@ else if (response.end_point === 'customer_care_team') {
         <span>AI Output</span>
       </div>
       <div className="p-6 bg-white">
-        <h3 className="text-lg font-bold text-green-600 mb-4 flex items-center gap-2">
-          <span className="inline-block w-2 h-2 rounded-full bg-green-400"></span>
-          Output
-        </h3>
         <div className="mb-2 space-y-4">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="font-bold text-green-700">Endpoint</span>
-            <span className="text-gray-900">customer_care_team</span>
-          </div>
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-lg font-bold text-green-700">Customer Care RAG Response</span>
+              <span className="text-lg font-bold text-green-700">AI Response</span>
               <button
                 type="button"
                 onClick={() => handleCopy(response.rag_results?.answer || "")}
                 className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
                 title="Copy RAG Output"
               >
-                <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}>content_copy</span> Copy
+                <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span> Copy
               </button>
             </div>
             <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
@@ -407,10 +450,6 @@ else if (response.end_point === 'customer_care_team') {
           <span>AI Output</span>
         </div>
         <div className="p-6 bg-white">
-          <h3 className="text-lg font-bold text-green-600 mb-4 flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-green-400"></span>
-            Output
-          </h3>
           <div className="mb-2 space-y-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
@@ -511,7 +550,7 @@ else if (response.end_point === 'customer_care_team') {
     return (
       <button
         key={endpoint.id}
-        onClick={() => setSelectedEndpoint(endpoint.id)}
+        onClick={() => handleEndpointChange(endpoint.id)}
         className={`flex-1 p-6 rounded-lg border-2 transition-all duration-200 text-left transform hover:scale-105 ${isSelected
             ? 'shadow-lg scale-105'
             : 'border-gray-200 bg-white hover:shadow-md'
