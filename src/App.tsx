@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Send, Mail, MessageCircle, Search, Loader2, CheckCircle, AlertCircle, Brain, Bot, Users, Shield, BarChart3, Settings, Plug } from 'lucide-react';
-import { X } from 'lucide-react'; 
+import { X } from 'lucide-react';
 
 type Endpoint = 'home' | 'router' | 'query' | 'customer_care_team';
 const AZURE_BASE_URL = "https://emailagentai-dgdgcyd2h4fmhcc3.centralus-01.azurewebsites.net";
@@ -73,67 +73,67 @@ function App() {
       bgColor: '#f0fdf4',
       borderColor: '#10b981'
     },
-     {
-    id: 'customer_care_team' as Endpoint,
-    label: 'Customer Care',
-    description: 'Get customer care answers from a knowledge base using Retrieval-Augmented Generation',
-    icon: Users,
-    gradient: 'linear-gradient(135deg, #f59e42 0%, #fbbf24 100%)',
-    bgColor: '#fff7ed',
-    borderColor: '#f59e42'
-  }
+    {
+      id: 'customer_care_team' as Endpoint,
+      label: 'Customer Care',
+      description: 'Get customer care answers from a knowledge base using Retrieval-Augmented Generation',
+      icon: Users,
+      gradient: 'linear-gradient(135deg, #f59e42 0%, #fbbf24 100%)',
+      bgColor: '#fff7ed',
+      borderColor: '#f59e42'
+    }
   ];
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
   // Place this handler inside your App component
-const handleEndpointChange = (endpoint: Endpoint) => {
-  setSelectedEndpoint(endpoint);
-  setFormData({
-    sender: '',
-    subject: '',
-    body: '',
-    user_query: ''
-  });
-  setResponse(null);
-  setError(null);
-};
+  const handleEndpointChange = (endpoint: Endpoint) => {
+    setSelectedEndpoint(endpoint);
+    setFormData({
+      sender: '',
+      subject: '',
+      body: '',
+      user_query: ''
+    });
+    setResponse(null);
+    setError(null);
+  };
 
-{/* Endpoint Selection */}
-<div className="flex flex-col md:flex-row gap-6 mb-8">
-  {endpoints.map((endpoint) => {
-    const Icon = endpoint.icon;
-    const isSelected = selectedEndpoint === endpoint.id;
+  {/* Endpoint Selection */ }
+  <div className="flex flex-col md:flex-row gap-6 mb-8">
+    {endpoints.map((endpoint) => {
+      const Icon = endpoint.icon;
+      const isSelected = selectedEndpoint === endpoint.id;
 
-    return (
-      <button
-        key={endpoint.id}
-        onClick={() => handleEndpointChange(endpoint.id)}
-        className={`flex-1 p-6 rounded-lg border-2 transition-all duration-200 text-left transform hover:scale-105 ${isSelected
+      return (
+        <button
+          key={endpoint.id}
+          onClick={() => handleEndpointChange(endpoint.id)}
+          className={`flex-1 p-6 rounded-lg border-2 transition-all duration-200 text-left transform hover:scale-105 ${isSelected
             ? 'shadow-lg scale-105'
             : 'border-gray-200 bg-white hover:shadow-md'
-          }`}
-        style={{
-          backgroundColor: isSelected ? endpoint.bgColor : 'white',
-          borderColor: isSelected ? endpoint.borderColor : '#e5e7eb',
-          minWidth: 0 // allow shrinking on small screens
-        }}
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <div
-            className="p-3 rounded-lg text-white"
-            style={{ background: endpoint.gradient }}
-          >
-            <Icon className="h-6 w-6" />
+            }`}
+          style={{
+            backgroundColor: isSelected ? endpoint.bgColor : 'white',
+            borderColor: isSelected ? endpoint.borderColor : '#e5e7eb',
+            minWidth: 0 // allow shrinking on small screens
+          }}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div
+              className="p-3 rounded-lg text-white"
+              style={{ background: endpoint.gradient }}
+            >
+              <Icon className="h-6 w-6" />
+            </div>
+            <h3 className="font-bold text-gray-900 text-lg">{endpoint.label}</h3>
           </div>
-          <h3 className="font-bold text-gray-900 text-lg">{endpoint.label}</h3>
-        </div>
-        <p className="text-sm text-gray-600 leading-relaxed">{endpoint.description}</p>
-      </button>
-    );
-  })}
-</div>
+          <p className="text-sm text-gray-600 leading-relaxed">{endpoint.description}</p>
+        </button>
+      );
+    })}
+  </div>
   // ...existing code...
   const DEMO_RESPONSES: Record<Endpoint, ApiResponse> = {
     home: {
@@ -188,95 +188,95 @@ Customer Support Team`,
       query_response: "Our return policy allows you to return most items within 30 days of delivery for a full refund. Please ensure the items are in their original condition and packaging. For more details, visit our Returns & Refunds page."
     },
     customer_care_team: {
-    end_point: "customer_care_team",
-    user_query: "How do I contact support?",
-    rag_results: {
-      answer: "You can contact our customer care team by emailing support@example.com or calling 1-800-123-4567. Our team is available 24/7 to assist you with any queries."
+      end_point: "customer_care_team",
+      user_query: "How do I contact support?",
+      rag_results: {
+        answer: "You can contact our customer care team by emailing support@example.com or calling 1-800-123-4567. Our team is available 24/7 to assist you with any queries."
+      }
     }
-  }
   };
- const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
-  setError(null);
-  setResponse(null);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setResponse(null);
 
-  try {
-    let payload;
-    let url = "";
+    try {
+      let payload;
+      let url = "";
 
-    if (selectedEndpoint === "query") {
-      payload = { user_query: formData.user_query };
-      url = `${AZURE_BASE_URL}/query`;
-    } else if (selectedEndpoint === "router") {
-      payload = {
-        sender: formData.sender,
-        subject: formData.subject,
-        body: formData.body
-      };
-      url = `${AZURE_BASE_URL}/router`;
-    } else if (selectedEndpoint === "customer_care_team") {
-      payload = { user_query: formData.user_query };
-      url = `${AZURE_BASE_URL}/customer_care_team`;
-    } else {
-      payload = {
-        sender: formData.sender,
-        subject: formData.subject,
-        body: formData.body
-      };
-      url = `${AZURE_BASE_URL}/home`;
+      if (selectedEndpoint === "query") {
+        payload = { user_query: formData.user_query };
+        url = `${AZURE_BASE_URL}/query`;
+      } else if (selectedEndpoint === "router") {
+        payload = {
+          sender: formData.sender,
+          subject: formData.subject,
+          body: formData.body
+        };
+        url = `${AZURE_BASE_URL}/router`;
+      } else if (selectedEndpoint === "customer_care_team") {
+        payload = { user_query: formData.user_query };
+        url = `${AZURE_BASE_URL}/customer_care_team`;
+      } else {
+        payload = {
+          sender: formData.sender,
+          subject: formData.subject,
+          body: formData.body
+        };
+        url = `${AZURE_BASE_URL}/home`;
+      }
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error("API request failed");
+      const data = await res.json();
+      setResponse(data);
+    } catch (err) {
+      setError("Failed to process request. Showing demo response.");
+      setResponse(DEMO_RESPONSES[selectedEndpoint]);
+    } finally {
+      setLoading(false);
     }
-
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) throw new Error("API request failed");
-    const data = await res.json();
-    setResponse(data);
-  } catch (err) {
-    setError("Failed to process request. Showing demo response.");
-    setResponse(DEMO_RESPONSES[selectedEndpoint]);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
   const renderFormFields = () => {
-  if (selectedEndpoint === 'query' || selectedEndpoint === 'customer_care_team') {
-    return (
-      <div className="space-y-6">
-        <div className="relative">
-          <label htmlFor="user_query" className="block text-sm font-semibold text-gray-700 mb-3">
-            Your Query
-          </label>
-          <textarea
-            id="user_query"
-            value={formData.user_query}
-            onChange={(e) => handleInputChange('user_query', e.target.value)}
-            placeholder="Ask your question here..."
-            className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none text-gray-700 bg-white shadow-sm pr-10"
-            rows={4}
-            required
-          />
-          {formData.user_query && (
-            <button
-              type="button"
-              onClick={() => handleInputChange('user_query', '')}
-              className="absolute top-10 right-3 text-gray-400 hover:text-red-500"
-              tabIndex={-1}
-              aria-label="Clear"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          )}
+    if (selectedEndpoint === 'query' || selectedEndpoint === 'customer_care_team') {
+      return (
+        <div className="space-y-6">
+          <div className="relative">
+            <label htmlFor="user_query" className="block text-sm font-semibold text-gray-700 mb-3">
+              Your Query
+            </label>
+            <textarea
+              id="user_query"
+              value={formData.user_query}
+              onChange={(e) => handleInputChange('user_query', e.target.value)}
+              placeholder="Ask your question here..."
+              className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none text-gray-700 bg-white shadow-sm pr-10"
+              rows={4}
+              required
+            />
+            {formData.user_query && (
+              <button
+                type="button"
+                onClick={() => handleInputChange('user_query', '')}
+                className="absolute top-10 right-3 text-gray-400 hover:text-red-500"
+                tabIndex={-1}
+                aria-label="Clear"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
     return (
       <div className="space-y-6">
@@ -328,167 +328,170 @@ Customer Support Team`,
     );
   };
   const renderResponse = () => {
-  if (!response) return null;
+    if (!response) return null;
 
-  // Copy to clipboard utility
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
+    // Copy to clipboard utility
+    const handleCopy = (text: string) => {
+      navigator.clipboard.writeText(text);
+    };
 
-  if (response.end_point === 'query') {
-    // Only show AI Response with a copy button and a better icon
-    return (
-      <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
-        <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
-          <CheckCircle className="h-5 w-5" />
-          <span>AI Output</span>
-        </div>
-        <div className="p-6 bg-white">
-          <div className="mb-2">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-lg font-bold text-green-700">AI Generated Response</span>
-              <button
-                type="button"
-                onClick={() => handleCopy(response.query_response || "")}
-                className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
-                title="Copy AI Response"
-              >
-                <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span> Copy
-              </button>
-            </div>
-            <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
-              {response.query_response}
-            </div>
+    if (response.end_point === 'query') {
+      // Only show AI Response with a copy button and a better icon
+      return (
+        <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+          <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
+            <CheckCircle className="h-5 w-5" />
+            <span>AI Output</span>
           </div>
-        </div>
-      </div>
-    );
-  } else if (response.end_point === 'router') {
-    // Sentiment and Explanation each have their own copy button, better icon
-    return (
-      <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
-        <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
-          <CheckCircle className="h-5 w-5" />
-          <span>AI Output</span>
-        </div>
-        <div className="p-6 bg-white">
-          <div className="mb-2 space-y-4">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="font-bold text-green-700">Sentiment</span>
-                <button
-                  type="button"
-                  onClick={() => handleCopy(response.sentiment || "")}
-                  className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
-                  title="Copy Sentiment"
-                >
-                  <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span> Copy
-                </button>
-              </div>
-              <div className="bg-gray-50 border-l-4 border-green-400 p-3 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
-                {response.sentiment}
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="font-bold text-green-700">AI Generated Response</span>
-                <button
-                  type="button"
-                  onClick={() => handleCopy(response.explanation || "")}
-                  className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
-                  title="Copy Explanation"
-                >
-                  <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span> Copy
-                </button>
-              </div>
-              <div className="bg-gray-50 border-l-4 border-green-400 p-3 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
-                {response.explanation}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-// ...existing code...
-else if (response.end_point === 'customer_care_team') {
-  return (
-    <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
-      <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
-        <Users className="h-5 w-5" />
-        <span>AI Output</span>
-      </div>
-      <div className="p-6 bg-white">
-        <div className="mb-2 space-y-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-lg font-bold text-green-700">AI Response</span>
-              <button
-                type="button"
-                onClick={() => handleCopy(response.rag_results?.answer || "")}
-                className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
-                title="Copy RAG Output"
-              >
-                <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span> Copy
-              </button>
-            </div>
-            <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
-              {response.rag_results?.answer}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
- else {
-    // home endpoint: show subject and AI response with copy button and better icon
-    return (
-      <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
-        <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
-          <CheckCircle className="h-5 w-5" />
-          <span>AI Output</span>
-        </div>
-        <div className="p-6 bg-white">
-          <div className="mb-2 space-y-4">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="font-bold text-green-700">Subject</span>
-                <button
-                  type="button"
-                  onClick={() => handleCopy(response.subject || "")}
-                  className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
-                  title="Copy Subject"
-                >
-                  <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span> Copy
-                </button>
-              </div>
-              <div className="bg-gray-50 border-l-4 border-green-400 p-3 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
-                {response.subject}
-              </div>
-            </div>
-            <div>
+          <div className="p-6 bg-white">
+            <div className="mb-2">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-lg font-bold text-green-700">AI Generated Response</span>
                 <button
                   type="button"
-                  onClick={() => handleCopy(response.body || "")}
+                  onClick={() => handleCopy(response.query_response || "")}
                   className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
-                  title="Copy Output"
+                  title="Copy AI Response"
                 >
-                  <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span> Copy
+                  <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span>Copy
                 </button>
               </div>
               <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
-                {response.body}
+                {response.query_response}
               </div>
             </div>
           </div>
         </div>
-      </div>
-    );
-  }
-};
+      );
+    } else if (response.end_point === 'router') {
+      // Sentiment and Explanation each have their own copy button, better icon
+      return (
+        <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+          <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
+            <CheckCircle className="h-5 w-5" />
+            <span>AI Output</span>
+          </div>
+          <div className="p-6 bg-white">
+            <div className="mb-2 space-y-4">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="font-bold text-green-700">Sentiment</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(response.sentiment || "")}
+                    className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
+                    title="Copy Sentiment"
+                  >
+                    <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span>Copy
+                  </button>
+                </div>
+                <div className="bg-gray-50 border-l-4 border-green-400 p-3 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
+                  {response.sentiment}
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="font-bold text-green-700">AI Generated Response</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(response.explanation || "")}
+                    className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
+                    title="Copy Explanation"
+                  >
+                    <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span>Copy
+                  </button>
+                </div>
+                <div className="bg-gray-50 border-l-4 border-green-400 p-3 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
+                  {response.explanation}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    // ...existing code...
+    else if (response.end_point === 'customer_care_team') {
+      // Print the customer_care_team result in the console
+      console.log("customer_care_team result:", response);
+
+      return (
+        <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+          <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
+            <Users className="h-5 w-5" />
+            <span>AI Output</span>
+          </div>
+          <div className="p-6 bg-white">
+            <div className="mb-2 space-y-4">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg font-bold text-green-700">AI Response</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(response.rag_results?.answer || "")}
+                    className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
+                    title="Copy RAG Output"
+                  >
+                    <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span>Copy
+                  </button>
+                </div>
+                <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
+                  {response.rag_results?.answer}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    else {
+      // home endpoint: show subject and AI response with copy button and better icon
+      return (
+        <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+          <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
+            <CheckCircle className="h-5 w-5" />
+            <span>AI Output</span>
+          </div>
+          <div className="p-6 bg-white">
+            <div className="mb-2 space-y-4">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="font-bold text-green-700">Subject</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(response.subject || "")}
+                    className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
+                    title="Copy Subject"
+                  >
+                    <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span> Copy
+                  </button>
+                </div>
+                <div className="bg-gray-50 border-l-4 border-green-400 p-3 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
+                  {response.subject}
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg font-bold text-green-700">AI Generated Response</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(response.body || "")}
+                    className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
+                    title="Copy Output"
+                  >
+                    <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span> Copy
+                  </button>
+                </div>
+                <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
+                  {response.body}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  };
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f5f7fa' }}>
       <div className="container mx-auto px-5 py-8 max-w-6xl">
@@ -543,38 +546,38 @@ else if (response.end_point === 'customer_care_team') {
 
           {/* Endpoint Selection */}
           <div className="flex flex-col md:flex-row gap-6 mb-8">
-  {endpoints.map((endpoint) => {
-    const Icon = endpoint.icon;
-    const isSelected = selectedEndpoint === endpoint.id;
+            {endpoints.map((endpoint) => {
+              const Icon = endpoint.icon;
+              const isSelected = selectedEndpoint === endpoint.id;
 
-    return (
-      <button
-        key={endpoint.id}
-        onClick={() => handleEndpointChange(endpoint.id)}
-        className={`flex-1 p-6 rounded-lg border-2 transition-all duration-200 text-left transform hover:scale-105 ${isSelected
-            ? 'shadow-lg scale-105'
-            : 'border-gray-200 bg-white hover:shadow-md'
-          }`}
-        style={{
-          backgroundColor: isSelected ? endpoint.bgColor : 'white',
-          borderColor: isSelected ? endpoint.borderColor : '#e5e7eb',
-          minWidth: 0 // allow shrinking on small screens
-        }}
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <div
-            className="p-3 rounded-lg text-white"
-            style={{ background: endpoint.gradient }}
-          >
-            <Icon className="h-6 w-6" />
+              return (
+                <button
+                  key={endpoint.id}
+                  onClick={() => handleEndpointChange(endpoint.id)}
+                  className={`flex-1 p-6 rounded-lg border-2 transition-all duration-200 text-left transform hover:scale-105 ${isSelected
+                    ? 'shadow-lg scale-105'
+                    : 'border-gray-200 bg-white hover:shadow-md'
+                    }`}
+                  style={{
+                    backgroundColor: isSelected ? endpoint.bgColor : 'white',
+                    borderColor: isSelected ? endpoint.borderColor : '#e5e7eb',
+                    minWidth: 0 // allow shrinking on small screens
+                  }}
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div
+                      className="p-3 rounded-lg text-white"
+                      style={{ background: endpoint.gradient }}
+                    >
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="font-bold text-gray-900 text-lg">{endpoint.label}</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 leading-relaxed">{endpoint.description}</p>
+                </button>
+              );
+            })}
           </div>
-          <h3 className="font-bold text-gray-900 text-lg">{endpoint.label}</h3>
-        </div>
-        <p className="text-sm text-gray-600 leading-relaxed">{endpoint.description}</p>
-      </button>
-    );
-  })}
-</div>
 
           {/* Main Form */}
           <div className="bg-white rounded-lg shadow-lg p-8 border border-gray-100">
@@ -617,7 +620,7 @@ else if (response.end_point === 'customer_care_team') {
             {renderResponse()}
           </div>
         </div>
-         {/* Operation Modes */}
+        {/* Operation Modes */}
         <div className="bg-white rounded-lg p-6 mb-8 shadow-sm">
           <h2 className="text-2xl font-bold mb-4 pb-3 border-b-2" style={{ color: '#4a6bff', borderColor: '#4a6bff' }}>
             Operation Modes
