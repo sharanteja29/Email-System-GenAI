@@ -372,20 +372,26 @@ else if (response.end_point === 'customer_care_team') {
           <span className="inline-block w-2 h-2 rounded-full bg-green-400"></span>
           Output
         </h3>
-        <div className="mb-2">
+        <div className="mb-2 space-y-4">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-lg font-bold text-green-700">Customer Care Response</span>
-            <button
-              type="button"
-              onClick={() => handleCopy(response.rag_results?.answer || "")}
-              className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
-              title="Copy RAG Output"
-            >
-              <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span>Copy
-            </button>
+            <span className="font-bold text-green-700">Endpoint</span>
+            <span className="text-gray-900">customer_care_team</span>
           </div>
-          <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
-            {response.rag_results?.answer}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg font-bold text-green-700">Customer Care RAG Response</span>
+              <button
+                type="button"
+                onClick={() => handleCopy(response.rag_results?.answer || "")}
+                className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
+                title="Copy RAG Output"
+              >
+                <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}>content_copy</span> Copy
+              </button>
+            </div>
+            <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
+              {response.rag_results?.answer}
+            </div>
           </div>
         </div>
       </div>
