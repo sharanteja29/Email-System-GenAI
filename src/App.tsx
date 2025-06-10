@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Send, Mail, MessageCircle, Search, Loader2, CheckCircle, AlertCircle, Brain, Bot, Users, Shield, BarChart3, Settings, Plug } from 'lucide-react';
 import { X } from 'lucide-react';
 
-type Endpoint = 'home' | 'router' | 'query' | 'customer_care_team_node';
+type Endpoint = 'home' | 'router' | 'query' | 'customer_care_team';
 const AZURE_BASE_URL = "https://emailagentai-dgdgcyd2h4fmhcc3.centralus-01.azurewebsites.net";
 interface FormData {
   sender: string;
@@ -74,7 +74,7 @@ function App() {
       borderColor: '#10b981'
     },
     {
-      id: 'customer_care_team_node' as Endpoint,
+      id: 'customer_care_team' as Endpoint,
       label: 'Customer Care',
       description: 'Get customer care answers from a knowledge base using Retrieval-Augmented Generation',
       icon: Users,
@@ -187,8 +187,8 @@ Customer Support Team`,
       user_query: "What is your return policy?",
       query_response: "Our return policy allows you to return most items within 30 days of delivery for a full refund. Please ensure the items are in their original condition and packaging. For more details, visit our Returns & Refunds page."
     },
-    customer_care_team_node: {
-      end_point: "customer_care_team_node",
+    customer_care_team: {
+      end_point: "customer_care_team",
       user_query: "How do I contact support?",
       rag_results: {
         answer: "You can contact our customer care team by emailing support@example.com or calling 1-800-123-4567. Our team is available 24/7 to assist you with any queries."
@@ -215,9 +215,9 @@ Customer Support Team`,
           body: formData.body
         };
         url = `${AZURE_BASE_URL}/router`;
-      } else if (selectedEndpoint === "customer_care_team_node") {
+      } else if (selectedEndpoint === "customer_care_team") {
         payload = { user_query: formData.user_query };
-        url = `${AZURE_BASE_URL}/customer_care_team_node`;
+        url = `${AZURE_BASE_URL}/customer_care_team`;
       } else {
         payload = {
           sender: formData.sender,
@@ -247,7 +247,7 @@ Customer Support Team`,
 
 
   const renderFormFields = () => {
-    if (selectedEndpoint === 'query' || selectedEndpoint === 'customer_care_team_node') {
+    if (selectedEndpoint === 'query' || selectedEndpoint === 'customer_care_team') {
       return (
         <div className="space-y-6">
           <div className="relative">
@@ -412,13 +412,13 @@ Customer Support Team`,
         </div>
       );
     }
-    else if (response.end_point === 'customer_care_team_node') {
+    else if (response.end_point === 'customer_care_team') {
     // Defensive: handle both object and string for rag_results
     const answer =
       typeof response.rag_results === "string"
         ? response.rag_results
         : response.rag_results?.answer;
-         console.log("customer_care_team_node answer:", answer);
+         console.log("customer_care_team answer:", answer);
 
     return (
       <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
