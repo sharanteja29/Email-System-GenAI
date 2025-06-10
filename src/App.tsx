@@ -135,116 +135,101 @@ function App() {
     })}
   </div>
   // ...existing code...
-  const DEMO_RESPONSES: Record<Endpoint, ApiResponse> = {
-    home: {
-      end_point: "home",
-      sender: "sarah.johnson@example.com",
-      subject: "Order #12345 - Missing item in my delivery",
-      body: `Hi Sarah,
-
-Thank you for reaching out about your incomplete order #12345. I'm sorry to hear that your Premium Wireless Headphones (SKU: WH-2000) were missing from your delivery.
-
-I've verified your order in our system and can confirm that these headphones were indeed part of your purchase. I'll immediately arrange for the missing item to be shipped to you with expedited delivery at no extra cost.
-
-You should receive a shipping confirmation email within the next 24 hours. As a token of our apology for this inconvenience, I've also added a 10% discount to your account for your next purchase.
-
-Is there anything else you need help with regarding your order?
-
-Best regards,
-[Agent Name]
-Customer Support Team`,
-      analysis: {
-        intent: "Report Missing Item (98% confidence)",
-        sentiment: "Neutral with slight frustration (94% confidence)",
-        urgency: "Medium (96% confidence)",
-        entities: ["Order #12345", "Premium Wireless Headphones", "SKU: WH-2000"],
-        context: [
-          "Order verified in system",
-          "Repeat customer, 5 previous orders",
-          "No previous issues reported"
-        ]
-      }
-    },
-    router: {
-      end_point: "router",
-      sender: "sarah.johnson@example.com",
-      sentiment: "Neutral with slight frustration (94% confidence)",
-      explanation: "The customer is polite but expresses concern about a missing item, indicating slight frustration.",
-      analysis: {
-        intent: "Report Missing Item (98% confidence)",
-        sentiment: "Neutral with slight frustration (94% confidence)",
-        urgency: "Medium (96% confidence)",
-        entities: ["Order #12345", "Premium Wireless Headphones", "SKU: WH-2000"],
-        context: [
-          "Order verified in system",
-          "Repeat customer, 5 previous orders",
-          "No previous issues reported"
-        ]
-      }
-    },
-    query: {
-      end_point: "query",
-      user_query: "What is your return policy?",
-      query_response: "Our return policy allows you to return most items within 30 days of delivery for a full refund. Please ensure the items are in their original condition and packaging. For more details, visit our Returns & Refunds page."
-    },
-    customer_care_team: {
-      end_point: "customer_care_team",
-      user_query: "How do I contact support?",
-      rag_results: {
-        answer: "You can contact our customer care team by emailing support@example.com or calling 1-800-123-4567. Our team is available 24/7 to assist you with any queries."
-      }
+const DEMO_RESPONSES: Record<Endpoint, ApiResponse> = {
+  home: {
+    end_point: "home",
+    subject: "",
+    body: "Sorry, we are unable to provide a solution for your query at this time."
+  },
+  router: {
+    end_point: "router",
+    sentiment: "",
+    explanation: "Sorry, we are unable to provide a solution for your query at this time."
+  },
+  query: {
+    end_point: "query",
+    query_response: "Sorry, we are unable to provide a solution for your query at this time."
+  },
+  customer_care_team: {
+    end_point: "customer_care_team",
+    rag_results: {
+      answer: "Sorry, we are unable to provide a solution for your query at this time."
     }
-  };
+  }
+};
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setResponse(null);
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
+  setResponse(null);
 
-    try {
-      let payload;
-      let url = "";
+  try {
+    let payload: any;
+    let url = "";
 
-      if (selectedEndpoint === "query") {
-        payload = { user_query: formData.user_query };
-        url = `${AZURE_BASE_URL}/query`;
-      } else if (selectedEndpoint === "router") {
-        payload = {
-          sender: formData.sender,
-          subject: formData.subject,
-          body: formData.body
-        };
-        url = `${AZURE_BASE_URL}/router`;
-      } else if (selectedEndpoint === "customer_care_team") {
-        payload = { user_query: formData.user_query };
-        url = `${AZURE_BASE_URL}/customer_care_team`;
-      } else {
-        payload = {
-          sender: formData.sender,
-          subject: formData.subject,
-          body: formData.body
-        };
-        url = `${AZURE_BASE_URL}/home`;
-      }
-
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      if (!res.ok) throw new Error("API request failed");
-      const data = await res.json();
-      console.log("API response from server:", data);
-      setResponse(data);
-    } catch (err) {
-      setError("Failed to process request. Showing demo response.");
-      setResponse(DEMO_RESPONSES[selectedEndpoint]);
-    } finally {
-      setLoading(false);
+    if (selectedEndpoint === "query") {
+      payload = { user_query: formData.user_query };
+      url = `${AZURE_BASE_URL}/query`;
+    } else if (selectedEndpoint === "router") {
+      payload = {
+        sender: formData.sender,
+        subject: formData.subject,
+        body: formData.body
+      };
+      url = `${AZURE_BASE_URL}/router`;
+    } else if (selectedEndpoint === "customer_care_team") {
+      payload = { user_query: formData.user_query };
+      url = `${AZURE_BASE_URL}/customer_care_team`;
+    } else {
+      payload = {
+        sender: formData.sender,
+        subject: formData.subject,
+        body: formData.body
+      };
+      url = `${AZURE_BASE_URL}/home`;
     }
-  };
 
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error("API request failed");
+    const data = await res.json();
+
+    const isNoAnswer = (text?: string) =>
+      !text ||
+      text.trim() === "" ||
+      /unable to|no information|no answer|sorry/i.test(text);
+
+    let shouldShowDemo = false;
+    if (selectedEndpoint === "query") {
+      shouldShowDemo = isNoAnswer(data.query_response);
+    } else if (selectedEndpoint === "router") {
+      shouldShowDemo = isNoAnswer(data.explanation);
+    } else if (selectedEndpoint === "customer_care_team") {
+      const answer =
+        typeof data.rag_results === "string"
+          ? data.rag_results
+          : data.rag_results?.answer;
+      shouldShowDemo = isNoAnswer(answer);
+    } else if (selectedEndpoint === "home") {
+      shouldShowDemo = isNoAnswer(data.body);
+    }
+
+    if (shouldShowDemo) {
+      setResponse(DEMO_RESPONSES[selectedEndpoint]);
+    } else {
+      setResponse(data);
+    }
+  } catch (err) {
+    setError("Failed to process request. Please try again.");
+    setResponse(DEMO_RESPONSES[selectedEndpoint]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const renderFormFields = () => {
     if (selectedEndpoint === 'query' || selectedEndpoint === 'customer_care_team') {
@@ -328,56 +313,67 @@ Customer Support Team`,
       </div>
     );
   };
-  const renderResponse = () => {
-    if (!response) return null;
-    console.log("Rendering response:", response);
+const renderResponse = () => {
+  if (!response) return null;
+  console.log("Rendering response:", response);
 
-    // Copy to clipboard utility
-    const handleCopy = (text: string) => {
-      navigator.clipboard.writeText(text);
-    };
+  // Copy to clipboard utility
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
 
-    if (response.end_point === 'query') {
-      // Only show AI Response with a copy button and a better icon
-      return (
-        <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
-          <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
-            <CheckCircle className="h-5 w-5" />
-            <span>AI Output</span>
-          </div>
-          <div className="p-6 bg-white">
-            <div className="mb-2">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg font-bold text-green-700">AI Generated Response</span>
+  // Helper to check for fallback/empty
+  const isNoAnswer = (text?: string) =>
+    !text ||
+    text.trim() === "" ||
+    /unable to|no information|no answer|sorry/i.test(text);
+
+  if (response.end_point === 'query') {
+    const answer = response.query_response;
+    return (
+      <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+        <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
+          <CheckCircle className="h-5 w-5" />
+          <span>AI Output</span>
+        </div>
+        <div className="p-6 bg-white">
+          <div className="mb-2">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg font-bold text-green-700">AI Generated Response</span>
+              {!isNoAnswer(answer) && (
                 <button
                   type="button"
-                  onClick={() => handleCopy(response.query_response || "")}
+                  onClick={() => handleCopy(answer || "")}
                   className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
                   title="Copy AI Response"
                 >
                   <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span>Copy
                 </button>
-              </div>
-              <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
-                {response.query_response}
-              </div>
+              )}
+            </div>
+            <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
+              {isNoAnswer(answer)
+                ? "Sorry, we are unable to provide a solution for your query at this time."
+                : answer}
             </div>
           </div>
         </div>
-      );
-    } else if (response.end_point === 'router') {
-      // Sentiment and Explanation each have their own copy button, better icon
-      return (
-        <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
-          <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
-            <CheckCircle className="h-5 w-5" />
-            <span>AI Output</span>
-          </div>
-          <div className="p-6 bg-white">
-            <div className="mb-2 space-y-4">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="font-bold text-green-700">Sentiment</span>
+      </div>
+    );
+  } else if (response.end_point === 'router') {
+    const answer = response.explanation;
+    return (
+      <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+        <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
+          <CheckCircle className="h-5 w-5" />
+          <span>AI Output</span>
+        </div>
+        <div className="p-6 bg-white">
+          <div className="mb-2 space-y-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="font-bold text-green-700">Sentiment</span>
+                {!isNoAnswer(response.sentiment) && (
                   <button
                     type="button"
                     onClick={() => handleCopy(response.sentiment || "")}
@@ -386,40 +382,47 @@ Customer Support Team`,
                   >
                     <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span>Copy
                   </button>
-                </div>
-                <div className="bg-gray-50 border-l-4 border-green-400 p-3 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
-                  {response.sentiment}
-                </div>
+                )}
               </div>
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="font-bold text-green-700">AI Generated Response</span>
+              <div className="bg-gray-50 border-l-4 border-green-400 p-3 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
+                {isNoAnswer(response.sentiment)
+                  ? "Sorry, we are unable to provide a solution for your query at this time."
+                  : response.sentiment}
+              </div>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="font-bold text-green-700">AI Generated Response</span>
+                {!isNoAnswer(answer) && (
                   <button
                     type="button"
-                    onClick={() => handleCopy(response.explanation || "")}
+                    onClick={() => handleCopy(answer || "")}
                     className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
                     title="Copy Explanation"
                   >
                     <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span>Copy
                   </button>
-                </div>
-                <div className="bg-gray-50 border-l-4 border-green-400 p-3 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
-                  {response.explanation}
-                </div>
+                )}
+              </div>
+              <div className="bg-gray-50 border-l-4 border-green-400 p-3 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
+                {isNoAnswer(answer)
+                  ? "Sorry, we are unable to provide a solution for your query at this time."
+                  : answer}
               </div>
             </div>
           </div>
         </div>
-      );
-    }
-    else if (response.end_point === 'customer_care_team' ||
-  response.end_point === 'customer_care_team_node') {
-    // Defensive: handle both object and string for rag_results
+      </div>
+    );
+  } else if (
+    response.end_point === 'customer_care_team' ||
+    response.end_point === 'customer_care_team_node'
+  ) {
     const answer =
       typeof response.rag_results === "string"
         ? response.rag_results
         : response.rag_results?.answer;
-         console.log("customer_care_team answer:", answer);
+    console.log("customer_care_team answer:", answer);
 
     return (
       <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
@@ -432,37 +435,42 @@ Customer Support Team`,
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-lg font-bold text-green-700">AI Response</span>
-                <button
-                  type="button"
-                  onClick={() => handleCopy(answer || "")}
-                  className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
-                  title="Copy RAG Output"
-                >
-                  <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span>Copy
-                </button>
+                {!isNoAnswer(answer) && (
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(answer || "")}
+                    className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
+                    title="Copy RAG Output"
+                  >
+                    <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span>Copy
+                  </button>
+                )}
               </div>
               <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
-                {answer}
+                {isNoAnswer(answer)
+                  ? "Sorry, we are unable to provide a solution for your query at this time."
+                  : answer}
               </div>
             </div>
           </div>
         </div>
       </div>
     );
-  } 
-    else {
-      // home endpoint: show subject and AI response with copy button and better icon
-      return (
-        <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
-          <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
-            <CheckCircle className="h-5 w-5" />
-            <span>AI Output</span>
-          </div>
-          <div className="p-6 bg-white">
-            <div className="mb-2 space-y-4">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="font-bold text-green-700">Subject</span>
+  } else {
+    // home endpoint: show subject and AI response with copy button and better icon
+    const answer = response.body;
+    return (
+      <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+        <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
+          <CheckCircle className="h-5 w-5" />
+          <span>AI Output</span>
+        </div>
+        <div className="p-6 bg-white">
+          <div className="mb-2 space-y-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="font-bold text-green-700">Subject</span>
+                {!isNoAnswer(response.subject) && (
                   <button
                     type="button"
                     onClick={() => handleCopy(response.subject || "")}
@@ -471,33 +479,40 @@ Customer Support Team`,
                   >
                     <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span> Copy
                   </button>
-                </div>
-                <div className="bg-gray-50 border-l-4 border-green-400 p-3 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
-                  {response.subject}
-                </div>
+                )}
               </div>
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-lg font-bold text-green-700">AI Generated Response</span>
+              <div className="bg-gray-50 border-l-4 border-green-400 p-3 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
+                {isNoAnswer(response.subject)
+                  ? "Sorry, we are unable to provide a solution for your query at this time."
+                  : response.subject}
+              </div>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg font-bold text-green-700">AI Generated Response</span>
+                {!isNoAnswer(answer) && (
                   <button
                     type="button"
-                    onClick={() => handleCopy(response.body || "")}
+                    onClick={() => handleCopy(answer || "")}
                     className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
                     title="Copy Output"
                   >
                     <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span> Copy
                   </button>
-                </div>
-                <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
-                  {response.body}
-                </div>
+                )}
+              </div>
+              <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
+                {isNoAnswer(answer)
+                  ? "Sorry, we are unable to provide a solution for your query at this time."
+                  : answer}
               </div>
             </div>
           </div>
         </div>
-      );
-    }
-  };
+      </div>
+    );
+  }
+};
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f5f7fa' }}>
       <div className="container mx-auto px-5 py-8 max-w-6xl">
@@ -546,7 +561,7 @@ Customer Support Team`,
             AI Assistant Interface
           </h2>
           <p className="text-gray-700 mb-6 leading-relaxed">
-            Harness the power of Gemini 2.0 Flash to generate email responses, analyze sentiment, and answer your questions with AI precision.
+            Harness the power of our model to generate email responses, analyze sentiment, and answer your questions with AI precision.
             Choose from three powerful modes to enhance your customer communication workflow.
           </p>
 
