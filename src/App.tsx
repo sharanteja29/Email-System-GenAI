@@ -412,7 +412,8 @@ Customer Support Team`,
         </div>
       );
     }
-    else if (response.end_point === 'customer_care_team') {
+    else if (response.end_point === 'customer_care_team' ||
+  response.end_point === 'customer_care_team_node') {
     // Defensive: handle both object and string for rag_results
     const answer =
       typeof response.rag_results === "string"
