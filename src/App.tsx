@@ -410,46 +410,42 @@ Customer Support Team`,
         </div>
       );
     }
-    // ...existing code...
     else if (response.end_point === 'customer_care_team') {
-  // Print the customer_care_team result in the console for debugging
-  console.log("customer_care_team result:", response);
+    // Defensive: handle both object and string for rag_results
+    const answer =
+      typeof response.rag_results === "string"
+        ? response.rag_results
+        : response.rag_results?.answer;
 
-  // Defensive: handle both object and string for rag_results
-  const answer =
-    typeof response.rag_results === "string"
-      ? response.rag_results
-      : response.rag_results?.answer;
-
-  return (
-    <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
-      <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
-        <Users className="h-5 w-5" />
-        <span>AI Output</span>
-      </div>
-      <div className="p-6 bg-white">
-        <div className="mb-2 space-y-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-lg font-bold text-green-700">AI Response</span>
-              <button
-                type="button"
-                onClick={() => handleCopy(answer || "")}
-                className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
-                title="Copy RAG Output"
-              >
-                <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span>Copy
-              </button>
-            </div>
-            <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
-              {answer}
+    return (
+      <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+        <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
+          <Users className="h-5 w-5" />
+          <span>AI Output</span>
+        </div>
+        <div className="p-6 bg-white">
+          <div className="mb-2 space-y-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg font-bold text-green-700">AI Response</span>
+                <button
+                  type="button"
+                  onClick={() => handleCopy(answer || "")}
+                  className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
+                  title="Copy RAG Output"
+                >
+                  <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span>Copy
+                </button>
+              </div>
+              <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
+                {answer}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  } 
     else {
       // home endpoint: show subject and AI response with copy button and better icon
       return (
