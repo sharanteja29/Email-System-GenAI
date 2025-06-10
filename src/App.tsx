@@ -235,6 +235,7 @@ Customer Support Team`,
 
       if (!res.ok) throw new Error("API request failed");
       const data = await res.json();
+      console.log("API response from server:", data);
       setResponse(data);
     } catch (err) {
       setError("Failed to process request. Showing demo response.");
@@ -329,6 +330,7 @@ Customer Support Team`,
   };
   const renderResponse = () => {
     if (!response) return null;
+    console.log("Rendering response:", response);
 
     // Copy to clipboard utility
     const handleCopy = (text: string) => {
@@ -416,6 +418,7 @@ Customer Support Team`,
       typeof response.rag_results === "string"
         ? response.rag_results
         : response.rag_results?.answer;
+         console.log("customer_care_team answer:", answer);
 
     return (
       <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
