@@ -328,39 +328,37 @@ const renderResponse = () => {
     text.trim() === "" ||
     /unable to|no information|no answer|sorry/i.test(text);
 
-  if (response.end_point === 'query') {
-    const answer = response.query_response;
-    return (
-      <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
-        <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
-          <CheckCircle className="h-5 w-5" />
-          <span>AI Output</span>
-        </div>
-        <div className="p-6 bg-white">
-          <div className="mb-2">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-lg font-bold text-green-700">AI Generated Response</span>
-              {!isNoAnswer(answer) && (
-                <button
-                  type="button"
-                  onClick={() => handleCopy(answer || "")}
-                  className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
-                  title="Copy AI Response"
-                >
-                  <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span>Copy
-                </button>
-              )}
-            </div>
-            <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
-              {isNoAnswer(answer)
-                ? "Sorry, we are unable to provide a solution for your query at this time."
-                : answer}
-            </div>
+  // In your renderResponse function, update the 'query' block to show the output directly:
+
+if (response.end_point === 'query') {
+  const answer = response.query_response;
+  return (
+    <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+      <div className="px-6 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold flex items-center gap-3">
+        <CheckCircle className="h-5 w-5" />
+        <span>AI Output</span>
+      </div>
+      <div className="p-6 bg-white">
+        <div className="mb-2">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-lg font-bold text-green-700">AI Generated Response</span>
+            <button
+              type="button"
+              onClick={() => handleCopy(answer || "")}
+              className="ml-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-mono border border-blue-200 hover:bg-blue-200 transition flex items-center"
+              title="Copy AI Response"
+            >
+              <span className="material-icons" style={{ fontSize: 18, marginRight: 4 }}></span>Copy
+            </button>
+          </div>
+          <div className="bg-gray-50 border-l-4 border-green-400 p-4 rounded-lg whitespace-pre-line text-gray-800 font-mono text-sm">
+            {answer}
           </div>
         </div>
       </div>
-    );
-  } else if (response.end_point === 'router') {
+    </div>
+  );
+} else if (response.end_point === 'router') {
     const answer = response.explanation;
     return (
       <div className="mt-8 bg-gradient-to-br from-blue-50 to-green-50 rounded-xl shadow-xl border border-gray-100 overflow-hidden">
