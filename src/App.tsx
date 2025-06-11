@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Send, Mail, MessageCircle, Search, Loader2, CheckCircle, AlertCircle, Brain, Bot, Users, Shield, BarChart3, Settings, Plug } from 'lucide-react';
 import { X } from 'lucide-react';
-
+import Login from "./components/Login";
 type Endpoint = 'home' | 'router' | 'query' | 'customer_care_team';
 const AZURE_BASE_URL = "https://emailagentai-dgdgcyd2h4fmhcc3.centralus-01.azurewebsites.net";
 interface FormData {
@@ -34,6 +34,7 @@ interface ApiResponse {
 }
 
 function App() {
+  const [user, setUser] = useState<{ username: string; isGuest: boolean } | null>(null);
   const [selectedEndpoint, setSelectedEndpoint] = useState<Endpoint>('home');
   const [formData, setFormData] = useState<FormData>({
     sender: '',
@@ -45,6 +46,12 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+
+  if (!user) {
+  return <Login onLogin={setUser} />;
+}
+  
+  
   const endpoints = [
     {
       id: 'home' as Endpoint,
@@ -100,7 +107,7 @@ function App() {
     setError(null);
   };
 
-  {/* Endpoint Selection */ }
+  {/* Endpoint Selection  */}
   <div className="flex flex-col md:flex-row gap-6 mb-8">
     {endpoints.map((endpoint) => {
       const Icon = endpoint.icon;
