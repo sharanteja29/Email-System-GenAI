@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Send, Mail, MessageCircle, Search, Loader2, CheckCircle, AlertCircle, Brain, Bot, Users, Shield, BarChart3, Settings, Plug } from 'lucide-react';
 import { X } from 'lucide-react';
 import Login from "./components/Login";
@@ -34,7 +34,19 @@ interface ApiResponse {
 }
 
 function App() {
-  const [user, setUser] = useState<{ username: string; isGuest: boolean } | null>(null);
+   const [user, setUser] = useState<{ username: string; isGuest: boolean } | null>(() => {
+    const stored = localStorage.getItem("neuronscx-user");
+    return stored ? JSON.parse(stored) : null;
+  });
+
+  // Save user to localStorage whenever it changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("neuronscx-user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("neuronscx-user");
+    }
+  }, [user]);
   const [selectedEndpoint, setSelectedEndpoint] = useState<Endpoint>('home');
   const [formData, setFormData] = useState<FormData>({
     sender: '',
@@ -47,6 +59,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
 
 
+ const handleLogout = () => setUser(null);
   if (!user) {
   return <Login onLogin={setUser} />;
 }
@@ -521,6 +534,28 @@ if (response.end_point === 'query') {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#f5f7fa' }}>
       <div className="container mx-auto px-5 py-8 max-w-6xl">
+      {/* --- Logout BLOCK  --- */}
+<div className="flex justify-end items-center mb-6">
+  <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow border border-gray-100">
+    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-700 text-lg uppercase">
+      {user.username.charAt(0)}
+    </div>
+    <div className="flex flex-col text-right">
+      <span className="font-semibold text-gray-800">{user.username}</span>
+      {user.isGuest && (
+        <span className="text-xs text-gray-500">(Guest)</span>
+      )}
+    </div>
+    <button
+      className="ml-4 px-4 py-1 rounded-full bg-blue-600 text-white font-semibold text-sm shadow hover:bg-blue-700 transition"
+      onClick={handleLogout}
+    >
+      Logout
+    </button>
+  </div>
+</div>
+      {/* --- END BLOCK --- */}
+
         {/* Header */}
         <header className="text-center mb-8 p-8 text-white rounded-lg" style={{ background: 'linear-gradient(135deg, #4a6bff 0%, #6c45e4 100%)' }}>
           <h1 className="text-4xl font-bold mb-3">NeuronsCX</h1>
@@ -794,6 +829,7 @@ if (response.end_point === 'query') {
         </footer>
       </div>
     </div>
+    
   );
 }
 

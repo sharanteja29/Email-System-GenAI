@@ -7,11 +7,12 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === "admin" && password === "password") {
+    if (username === "Sharan" && password === "p@ssword") {
       onLogin({ username, isGuest: false });
     } else {
       setError("Invalid credentials. Try again or continue as guest.");
@@ -31,14 +32,24 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             onChange={e => setUsername(e.target.value)}
             required
           />
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full px-4 py-2 border rounded-lg"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              className="w-full px-4 py-2 border rounded-lg pr-16"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              className="absolute top-1/2 right-3 -translate-y-1/2 text-blue-600 text-xs font-semibold"
+              onClick={() => setShowPassword((prev) => !prev)}
+              tabIndex={-1}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
           {error && <div className="text-red-600 text-sm">{error}</div>}
           <button
             type="submit"
